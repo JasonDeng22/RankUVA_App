@@ -1,0 +1,112 @@
+{%extends 'reviews/base.html'%}
+{% load socialaccount %}
+<!-- 
+REFERENCES
+
+1)
+Title: In 5 mins: Set up Google login to sign up users on Django
+Author: Zoe Chew
+Date: July 27,2019
+URL: https://whizzoe.medium.com/in-5-mins-set-up-google-login-to-sign-up-users-on-django-e71d5c38f5d5
+
+2)
+Title: Bootstrap 4 Containers
+URL: https://www.w3schools.com/bootstrap4/bootstrap_containers.asp
+
+3)
+Title: Bootstrap 4 Cards
+URL: https://www.w3schools.com/bootstrap4/bootstrap_cards.asp
+
+4)
+Title: Slider for Ratings
+URL: http://jsfiddle.net/gleezer/L10r5zvv/1/
+-->
+
+{% block content %}
+    <div class ="container">
+        <br>
+        <div class="card">
+            <div class="card-body">
+                <div class ="row">
+                    <div class="col-md-4">
+                        <img src="{{location.image}}" alt="{{location.location_name" class="img-fluid">
+                    </div>
+                    <div class ="col-md-8">
+                        <h3 class="text-center">
+                            {{location.location_name}}
+                        </h3>
+                        <p>{{location.description}}</p>
+                        <h5>Address: {{location.address}}</h5>
+                        <h5>Rating: {{average}}/10</h5>
+                    </div>
+                </div>
+            </div>
+        </div> 
+        <br>
+        <div class="card">
+            <div class="card-body">
+                <h3 class="text-center">Add a review</h3>
+                {% if user.is_authenticated %}
+                    <h5>Leave a review as "{{user.first_name}} {{user.last_name}}"</h5><br>
+                    <form action="{% url 'reviews:add_review' location.id %}" method= "POST">
+                        {% csrf_token %}
+
+                        <label for="comment">Review</label>
+                        <textarea name="comment" id="comment" cols="30" rows="5" class="form-control"></textarea>
+
+                        <br><label for="rating">Rating</label>
+                        <input type="range" id="rangeInput"
+                            name ="rating" min="0" max="10" value="0" step="1.0"
+                            oninput ="amount.value=rangeInput.value">     
+                            <output name="amount" id="amount" for="rangeInput">0</output>               
+                        <br>
+                        <input type="submit" class="btn btn-danger" value="Add Review">
+                    </form>
+                {% else %}
+                <br>
+                <h4 class="text-center">You're not signed in. Please login to leave a review!</h4>
+                <br>
+                <div style="text-align:center">
+<!-- fixing redirect page, got solution from https://stackoverflow.com/questions/50805897/django-unit-tests-failing-on-travis-ci-builds/51209478                   -->
+                  <a href="{% provider_login_url 'google' %}?next={{ request.path }}">Login with Google</a>
+                </div>
+                {% endif %}
+             </div>
+        </div>
+        <br>
+        <div class="card">
+            <div class="card-body">
+                <h3 class="text-center">Reviews</h3>
+                    {% if reviews %}
+                        {% for review in reviews %}
+                            <div class="card" style="background-color: #f5eeee;">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <h5 class="text-left">{{review.firstname}} {{review.lastname}}</h5>
+                                            <h6>Rating: {{review.rating}}</h6>
+                                            <h6>{{review.datepublished}}</h6>
+                                            {% if request.user.email == review.email %}
+                                                <a href = "{% url 'reviews:edit_review' location.id review.id %}">Edit</a>
+                                                <a href = "{% url 'reviews:delete_review' location.id review.id %}" onclick="return confirm('Are you sure want to delete this?');">Delete</a>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-9">
+                                            <p>{{review.comment}}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                        {% endfor %}
+                    {% else %}
+                        There are no reviews listed yet.
+                    {% endif %}
+            </div>
+
+        </div>
+        <br>
+        <br>
+    </div>
+
+{% endblock %}

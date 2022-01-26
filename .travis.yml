@@ -1,0 +1,14 @@
+language: python
+python:
+- '3.8'
+install:
+- pip3 install -r requirements-travis.txt
+script:
+- python3 manage.py test
+deploy:
+  provider: heroku
+  api_key:
+    secure: V1tVE7kfG/XjJdcVa+dLIRO6KiHa1ba+Pew/Sddt85MgvuwseBk8kmDjCxYL/72cf+YctmKF5B7CB9yQau9Ij90sBIUtHtwb3/fc2K54WxTJAaIaMHxjpYzfx7BEJlv/ouTrP98mqkJfNwe4+vIsGvAg7kWHviH/VMsctjBKA/CkjRnpRyCkp/IuHEFWVLMz+8A6I4X00gTHh2TN2vWKBQcp595NzeXapmWJyYAcgTkrrrZUOiIQlD9pvAyBmweihb8LHfC3beE5S55/X0qysUB44z8p3D+rVZ5dweAuu2/XZJUaVVoGDmOnafYLXQ4K9yY0pwxhExTOYc/mw0ayi4xNjaXQETmG2cCKArM/zxT+liRICw8eyVRyimafTZkfPZhY8LI/S9ezBhM0fEjWDbmJr3YpeGkGXuK8ndnt0Od0cYvgW4Uk/KK4ljPXs+Mi5d+Z6EY6704OTp842op6gscpKFcbp8pNJ/z1s68TrQbttRNhmaEt9l+aG74KZk6Ga5pxBwc8c4SrBM68bjkzNPK8KUB27qaSZtF3muRsubCarpQ+EGKkWp8PpJ3Ut6LlSogow/7CmB40O4Gv65yHfdfj+ZyPIfq64A7AYHykvDTnKHdRxcKZBqTxaHsICahmcBH6EsJJAFzXEDcocmDMxd44PeixBfGuDKp7HoEd98A=
+  app: b-05-semesterproject
+  on:
+    repo: uva-cs3240-s21/project-b-05

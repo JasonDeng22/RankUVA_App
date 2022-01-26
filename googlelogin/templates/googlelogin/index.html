@@ -1,0 +1,612 @@
+{% extends 'reviews/base.html' %} {% load socialaccount %} {% block content %}
+<!DOCTYPE html>
+<html>
+
+<head>
+
+
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>Interactive maps for Django web apps</title>
+
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body {
+            animation: fadeInAnimation ease 0.7s;
+            animation-iteration-count: 1;
+            animation-fill-mode: forwards;
+        }
+        /*popup instructions: https://docs.mapbox.com/mapbox-gl-js/example/set-popup/*/
+        
+        .mapboxgl-popup {
+            max-width: 250px;
+            width: 250px;
+            border-color: navy;
+            border-style: solid;
+            border-width: 5px;
+            border-radius: 10px;
+            background-color: white;
+        }
+        
+        .mapboxgl-popup-content {
+            text-align: center;
+            font-family: 'Franklin Gothic Book', 'Arial Narrow', Arial, sans-serif;
+            box-shadow: none;
+            width: 230px;
+            background-color: white;
+        }
+        
+        .marker {
+            /*Image is custom made but hosted on an image hosting webstie*/
+            background-image: url('https://i.ibb.co/fHwXgPN/UVA-Map-Marker.png');
+            background-size: 100% 100%;
+            height: 5%;
+            width: 4%;
+            cursor: pointer;
+            min-width: 20px;
+            min-height: 20px;
+            max-height: 50px;
+            max-width: 50px;
+        }
+        
+        #instructions {
+            margin-top: 60px;
+            border: .5px solid black;
+            width: 60%;
+            max-height: 550px;
+            overflow-y: scroll;
+            font-family: 'Franklin Gothic Book', 'Arial Narrow', Arial, sans-serif;
+            font-size: 0.8em;
+            line-height: 2em;
+            margin-left: 10%;
+        }
+        
+        .duration {
+            font-size: 1.2em;
+        }
+        
+        .instructionsinfo {
+            font-size: 1.2em;
+        }
+        
+        .instructionslist {
+            text-align: left;
+        }
+        
+        #mapDiv {
+            margin-left: 50px;
+            margin-right: auto;
+        }
+        
+        #map {
+            position: absolute;
+            top: 75px;
+            bottom: 0;
+            width: 60%;
+            height: 85%;
+            min-width: 300px;
+            max-width: 2000px;
+            max-height: 2300px;
+        }
+        
+        #mapControls {
+            position: relative;
+            background-size: 100% 100%;
+            margin: 0 auto;
+            position: relative;
+            margin-left: 2%;
+            margin-top: 1%;
+            /*Image is custom made but hosted on an image hosting webstie*/
+            background-image: url('https://i.ibb.co/qj5j2v8/map-Controller.png');
+            /* make a square container */
+            width: 150px;
+            height: 300px;
+            min-width: 120px;
+            min-height: 100px;
+            max-width: 400px;
+            max-height: 300px;
+            /* fill the container, preserving aspect ratio, and cropping to fit */
+            background-size: cover;
+        }
+        
+        #buttons {
+            position: relative;
+            top: 30%;
+            left: 38%;
+        }
+        
+        #buttons2 {
+            position: relative;
+            top: 48%;
+            left: 38%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="row">
+        <div class="column" style="width: 30%; min-width: 266px" id="mapControls">
+
+            <div id="buttons" onchange="mapRoute()">
+                <select id="Location1">
+                <option value="ScottStadium"> Scott Stadium </option>
+                <option value="TheLawn"> The Lawn</option>
+                <option value="Croads"> Croads</option>
+                <option value="NewDorms"> New Dorms</option>
+                <option value="OldDorms"> Old Dorms</option>
+                <option value="Gooch-Dillard"> Gooch-Dillard</option>
+                <option value="Dungilson/Fitzhugh"> Dungilson/Fitzhugh </option>
+                <option value="Hereford"> Hereford</option>
+                <option value="TheCastle"> The Castle</option>
+                <option value="Newcomb"> Newcomb </option>
+                <option value="ThePav"> The Pav</option>
+                <option value="EinsteinBagels"> Einstein Bagels</option>
+                <option value="Lambeth"> Lambeth </option>
+                <option value="TheCorner"> The Corner</option>
+                <option value="Bond"> Bond</option>
+                <option value="Bice"> Bice </option>
+                <option value="Faulkner"> Faulkner</option>
+                <option value="Copeley"> Copeley</option>
+                <option value="Brown"> Brown </option>
+                <option value="OHill"> OHill</option>
+                <option value="Runk"> Runk</option>
+            </select>
+            </div>
+            <div id="buttons2" onchange="mapRoute()">
+                <br>
+                <select id="Location2">
+                <option value="ScottStadium"> Scott Stadium </option>
+                <option value="TheLawn"> The Lawn</option>
+                <option value="Croads"> Croads</option>
+                <option value="NewDorms"> New Dorms</option>
+                <option value="OldDorms"> Old Dorms</option>
+                <option value="Gooch-Dillard"> Gooch-Dillard</option>
+                <option value="Dungilson/Fitzhugh"> Dungilson/Fitzhugh </option>
+                <option value="Hereford"> Hereford</option>
+                <option value="TheCastle"> The Castle</option>
+                <option value="Newcomb"> Newcomb </option>
+                <option value="ThePav"> The Pav</option>
+                <option value="EinsteinBagels"> Einstein Bagels</option>
+                <option value="Lambeth"> Lambeth </option>
+                <option value="TheCorner"> The Corner</option>
+                <option value="Bond"> Bond</option>
+                <option value="Bice"> Bice </option>
+                <option value="Faulkner"> Faulkner</option>
+                <option value="Copeley"> Copeley</option>
+                <option value="Brown"> Brown </option>
+                <option value="OHill"> OHill</option>
+                <option value="Runk"> Runk</option>
+            </select>
+
+
+            </div>
+        </div>
+        <div class="column" style="width: 60%; min-width: 800px; margin-right: 20px;">
+            <div id='map'></div>
+        </div>
+        <div class="column" style="width:550px; min-width: 400px; padding-left: 25px; text-align: center;">
+            <div id="instructions">
+                <span class=instructionsinfo> Enter a route to see turn-by-turn instructions </span>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <script>
+        //Mapbox route and turn-by-turn instructions demo code used below is from: https://docs.mapbox.com/help/tutorials/getting-started-directions-api/
+        mapboxgl.accessToken = 'pk.eyJ1Ijoicnlhbi1yb2JpbnNvbjEiLCJhIjoiY2ttZHBiY3I0MDQyMzJ3bzMwYmcxbXd6NyJ9.YEJw8gX99wzP4YdQcqssHA';
+        var bounds = [
+            [-78.523142, 38.024], // Southwest coordinates
+            [-78.487124, 38.058] // Northeast coordinates
+        ];
+        var coordDictionary = {
+
+                "ScottStadium": [-78.51365568824262, 38.03111981189522],
+                "TheLawn": [-78.50367924490706, 38.03511343486326],
+                "Croads": [-78.51550308626561, 38.0345051816097746],
+                "NewDorms": [-78.516543838606, 38.03413822605722],
+                "OldDorms": [-78.51146613552018, 38.035284310931445],
+                "Gooch-Dillard": [-78.51756006288385, 38.029541665612754],
+                "Dungilson/Fitzhugh": [-78.51553520679163, 38.03167653130791],
+                "Hereford": [-78.51917343866529, 38.029917204206185],
+                "TheCastle": [-78.51062164146249, 38.03568539936808],
+                "Newcomb": [-78.50656119291541, 38.03602451244171],
+                "ThePav": [-78.50667703131943, 38.03564875536327],
+                "EinsteinBagels": [-78.51068584200075, 38.03152152277136],
+                "Lambeth": [-78.50368476146959, 38.041905892128995],
+                "TheCorner": [-78.50062968519488, 38.035286959295235],
+                "Bond": [-78.50424766323968, 38.0293730132112],
+                "Bice": [-78.50494022533273, 38.02951802676478],
+                "Faulkner": [-78.51362545103139, 38.04772820885276],
+                "Copeley": [-78.50962232110734, 38.047677144488205],
+                "Brown": [-78.50738787283346, 38.03474659031153],
+                "OHill": [-78.51512961935694, 38.03476072732792],
+                "Runk": [-78.51875592010299, 38.02887099627927],
+            }
+            //Mapbox JS Code is modified code from tutorials at https://docs.mapbox.com/help/getting-started/ 
+
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v10',
+            center: [-78.5080, 38.0336],
+            zoom: 15,
+            maxBounds: bounds
+        });
+        map.touchZoomRotate.disableRotation();
+
+        var canvas = map.getCanvasContainer();
+        var start = [-78.5080, 38.0336];
+
+        var geojson = {
+            type: 'FeatureCollection',
+            features: [{
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.51365568824262, 38.03111981189522]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'Scott Stadium'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.50367924490706, 38.03511343486326]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'The Lawn'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.51512961935694, 38.03476072732792]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'OHill'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.51875592010299, 38.02887099627927]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'Runk Dining Hall'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.51553382596273, 38.03466541124604]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'Croads'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.516543838606, 38.03413822605722]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'New Dorms'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.51146613552018, 38.035284310931445]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'Old Dorms'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.51756006288385, 38.029541665612754]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'Gooch-Dillard Dorms'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.51553520679163, 38.03167653130791]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'Dungilson/Fitzhugh Dorms'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.51917343866529, 38.029917204206185]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'Hereford Residential College'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.51062164146249, 38.03568539936808]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'The Castle'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.50656119291541, 38.03602451244171]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'Newcomb'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.50667703131943, 38.03564875536327]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'The Pav'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.51068584200075, 38.03152152277136]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'Einstein Bagels'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.50368476146959, 38.041905892128995]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'Lambeth'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.50062968519488, 38.035286959295235]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'The Corner'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.50424766323968, 38.0293730132112]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'Bond'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.50494022533273, 38.02951802676478]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'Bice'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.51362545103139, 38.04772820885276]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'Faulkner'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.50962232110734, 38.047677144488205]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'Copeley'
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-78.50738787283346, 38.03474659031153]
+                },
+                properties: {
+                    title: 'Mapbox',
+                    description: 'Brown'
+                }
+            }]
+        };
+        map.on('click', function(e) {
+            var coordsObj = e.lngLat;
+            canvas.style.cursor = '';
+            var coords = Object.keys(coordsObj).map(function(key) {
+                return coordsObj[key];
+            });
+            console.log(coords);
+        });
+
+        // add markers to map
+        geojson.features.forEach(function(marker) {
+
+            // create a HTML element for each feature
+            var el = document.createElement('div');
+            el.className = 'marker';
+
+            // make a marker for each feature and add to the map
+            // code to create popups for markers https://docs.mapbox.com/mapbox-gl-js/example/set-popup/
+            const mark = new mapboxgl.Marker(el).setLngLat(marker.geometry.coordinates)
+                .setPopup(new mapboxgl.Popup({
+                        offset: 25
+                    }) // add popups
+                    .setHTML('<h3>' + marker.properties.description + '<h3>'))
+                .setLngLat(marker.geometry.coordinates)
+                .addTo(map);
+            // adds a click listener to each marker
+            mark.getElement().addEventListener('click', () => {
+                //alert(marker.properties.description);
+                map.flyTo({
+                    zoom: 16,
+                    center: marker.geometry.coordinates
+                });
+            });
+        });
+
+        function mapRoute() {
+            var coords = coordDictionary[document.getElementById("Location2").value];
+            var end = {
+                type: 'FeatureCollection',
+                features: [{
+                    type: 'Feature',
+                    properties: {},
+                    geometry: {
+                        type: 'Point',
+                        coordinates: coords
+                    }
+                }]
+            };
+            getRoute(coords, false);
+        }
+
+
+        // create a function to make a directions request
+        function getRoute(end, init) {
+            // make a directions request using cycling profile
+            // an arbitrary start will always be the same
+            // only the end or destination will change
+            var start = coordDictionary[document.getElementById("Location1").value];
+
+            var url = 'https://api.mapbox.com/directions/v5/mapbox/walking/' + start[0] + ',' + start[1] + ';' + end[0] + ',' + end[1] + '?steps=true&geometries=geojson&access_token=' + mapboxgl.accessToken;
+
+            // make an XHR request https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+            var req = new XMLHttpRequest();
+            req.open('GET', url, true);
+            req.onload = function() {
+                var json = JSON.parse(req.response);
+                var data = json.routes[0];
+                var route = data.geometry.coordinates;
+                var geojson = {
+                    type: 'Feature',
+                    properties: {},
+                    geometry: {
+                        type: 'LineString',
+                        coordinates: route
+                    }
+                };
+                console.log(data.distance);
+                console.log(data.duration);
+                // if the route already exists on the map, reset it using setData
+                if (map.getSource('route')) {
+                    map.getSource('route').setData(geojson);
+                } else { // otherwise, make a new request
+                    map.addLayer({
+                        id: 'route',
+                        type: 'line',
+                        source: {
+                            type: 'geojson',
+                            data: {
+                                type: 'Feature',
+                                properties: {},
+                                geometry: {
+                                    type: 'LineString',
+                                    coordinates: geojson
+                                }
+                            }
+                        },
+                        layout: {
+                            'line-join': 'round',
+                            'line-cap': 'round'
+                        },
+                        paint: {
+                            'line-color': '#3887be',
+                            'line-width': 5,
+                            'line-opacity': 0.75
+                        }
+                    });
+                }
+                map.flyTo({
+                    zoom: 15,
+                    center: start
+                });
+                if (!init) {
+                    var instructions = document.getElementById('instructions');
+                    var steps = data.legs[0].steps;
+
+                    var tripInstructions = ['<ul class="instructionslist"'];
+                    console.log(data.distance);
+                    tripInstructions.push(data.distance);
+                    if (start != end) {
+                        for (var i = 0; i < steps.length; i++) {
+                            if (steps[i].maneuver.instruction.includes("Continue")) {
+                                continue;
+                            }
+                            if (i != steps.length - 1) {
+                                var dist = steps[i].distance;
+                                tripInstructions.push('<br><li>' + steps[i].maneuver.instruction) + '</li>';
+                                if (dist < 160.934) {
+                                    tripInstructions.push('<br><li> Continue for approximately ' + Math.round(dist * 3.28084) + ' feet') + '</li>';
+                                } else {
+                                    tripInstructions.push('<br><li> Continue for approximately ' + Math.round(dist * 0.000621371 * 10) / 10 + ' miles') + '</li>';
+
+                                }
+                            } else if (i == steps.length - 1) {
+                                tripInstructions.push('<br><li>' + steps[i].maneuver.instruction) + '</li></ul>';
+                            }
+
+                            instructions.innerHTML = '<span class="duration">Trip duration: ' + Math.floor(data.duration / 60) + ' min,<br> Trip Distance: ' + Math.round(data.distance * 0.000621371 * 10) / 10 + ' miles </span>' + tripInstructions;
+                        }
+                    } else {
+                        instructions.innerHTML = 'The entered route has the same start and end location';
+                    }
+                };
+            }
+            req.send();
+
+        }
+        map.on('load', function() {
+            getRoute(start, true);
+            map.resize();
+        });
+    </script>
+
+</body>
+
+</html>
+<br><br> {% endblock %}

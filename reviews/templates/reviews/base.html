@@ -1,0 +1,153 @@
+{% load socialaccount %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>RankUVA</title>
+</head>
+<style>
+    /*NavBar CSS modified from https://stackoverflow.com/questions/18529274/change-navbar-color-in-twitter-bootstrap */
+    /* navbar */
+    
+    .navbar-default {
+        background-color: #232d4b;
+        border-color: #E7E7E7;
+        z-index: 10000;
+    }
+    /* Title */
+    
+    .navbar-default .navbar-brand {
+        color: white;
+        font-family: "Adobe Caslon", "Franklin Gothic", "ITC Franklin Gothic", Arial, sans-serif;
+        font-size: 30px;
+        font-style: normal;
+        font-variant: normal;
+        font-weight: 700;
+        line-height: 26.4px;
+    }
+    /* Links */
+    
+    .navbar-default .navbar-nav>li>a {
+        color: white;
+        font-family: "Adobe Caslon", "Franklin Gothic", "ITC Franklin Gothic", Arial, sans-serif;
+        font-size: 24px;
+        font-style: normal;
+        font-variant: normal;
+        font-weight: 700;
+        line-height: 26.4px;
+    }
+    
+    .navbar-default .navbar-nav>ul>a {
+        color: white;
+        font-family: "Adobe Caslon", "Franklin Gothic", "ITC Franklin Gothic", Arial, sans-serif;
+        font-size: 24px;
+        font-style: normal;
+        font-variant: normal;
+        font-weight: 700;
+        line-height: 26.4px;
+    }
+    
+    .navbar-default .navbar-nav>li>a:hover,
+    .navbar-default .navbar-nav>li>a:focus {
+        color: #b5b8ba;
+    }
+    
+    .navbar-brand:after {
+        content: "|";
+        color: #33456c;
+        position: absolute;
+        margin-left: 15px;
+        margin-top: -9px;
+        font-size: 67px;
+        font-weight: 100;
+    }
+    
+    #navBarRight {
+        padding-left: 20px;
+    }
+    
+    .navbar-default .navbar-toggle.icon-bar {
+        background-color: white !important;
+    }
+    
+    .navbar-default .navbar-toggle:hover,
+    .navbar-default .navbar-toggle:focus {
+        background-color: #DDD;
+    }
+    
+    .navbar-default .navbar-nav>.open>a,
+    .navbar-default .navbar-nav>.open>a:hover,
+    .navbar-default .navbar-nav>.open>a:focus {
+        color: #555;
+        background-color: #D5D5D5;
+    }
+    
+    @keyframes fadeInAnimation {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+</style>
+
+<body>
+
+
+
+    <nav class="navbar navbar-expand-lg navbar-default" id="nav">
+
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+
+          
+        </button>
+        <a class="navbar-brand" style="color: #E57200; font-family: Bodoni;">RankUVA</a>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto" id="navBarRight">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'reviews:map' %}" id="Map">Map<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'reviews:index' %}" id="Locations">Locations<span class="sr-only">(current)</span></a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto" id="signIn">
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown ml-auto">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> {{ user.first_name }} {{ user.last_name}}</a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown" id="dropDown">
+                        <a class="dropdown-item" href="/accounts/logout/">Sign Out</a>
+                    </div>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% provider_login_url 'google' %}">Sign In</a>
+                </li>
+                {% endif %}
+            </ul>
+
+
+        </div>
+    </nav>
+    {% block content %} {% endblock %}
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+
+</html>
