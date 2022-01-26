@@ -10,6 +10,7 @@ RankUVA has two main pages:
 		-If you click on each location, it will zoom in and display the name of the location.
 		-To navigate between two locations, use the navigation input box and input the two locations.
 		-Navigation path should be displayed along with specific walking directions
+		-Mapping functionality taken from Mapbox API
 	Reviews:
 		-Every notable UVA location on the map has a corresponding details/review page.
 		-Each location is listed along with a picture in a grid pattern. To find specific locations easily, you can use the search function at the top of the page.
