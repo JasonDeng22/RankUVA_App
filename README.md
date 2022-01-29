@@ -20,3 +20,5 @@ RankUVA has two main pages:
 		-When the review is published, it should display your google account name.
 		-After it is published, you can edit or delete your review.
 		-You can look at your reviews and other people's reviews on specific locations by going to the corresponding details page for that location.
+
+Tech Stack: HTML, CSS, JavaScript, Bootstrap, Django, Python, TravisCI, Heroku, GitHub, SQLite, PostgreSQL
